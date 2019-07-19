@@ -11,13 +11,9 @@ void drawGrid() {
 
 			grid[row][col].drawMe();
 
-			if (HopperInterface.class.isAssignableFrom(grid[row][col].getClass())) {
+			if (Hopper.class.isAssignableFrom(grid[row][col].getClass())) { // ?
 				grid[row][col].update();
 			}
-
-			// if (grid[row][col] instanceof HopperInterface) grid[row][col].update();
-
-			// if (entityType(grid[row][col].id) == "Hopper") grid[row][col].update();
 		}
 	}
 
@@ -32,9 +28,8 @@ void drawBuildMenu() {
 	fill(255);
 	rect(0,0,550,750);
 
-	for (Button button : buildingButtons) {
+	for (Button button : buildingButtons)
 		button.drawMe();
-	}
 
 	popMatrix();
 }
@@ -49,25 +44,7 @@ void drawHands() {
 	fill(255);
 	rect(0,0,100,100);
 
-	EntityObject model = new Empty(12345,54321,"xy");
-
-	switch(itemInHands) {
-		case "Iron Ore":
-		model = new IronOre(50,50,"xy");
-		break;
-		case "Iron Bar":
-		model = new IronBar(50,50,"xy");
-		break;
-		case "Smelter":
-		model = new Smelter(50,50,"xy");
-		break;
-		case "Drill":
-		model = new Drill(50,50,"xy","Empty");
-		break;
-		case "Pipe":
-		model = new Pipe(50,50,"xy",'E');
-		break;
-	}
+	EntityObject model = makeModel(itemInHands,50,50);
 
 	model.drawMe();
 
@@ -93,16 +70,7 @@ void drawInventory() {
 		strokeWeight(1);
 		line(100*(i+1),0,100*(i+1),100);
 
-		EntityObject model = new Empty(12345,54321,"xy");
-
-		switch(itemNames[i]) {
-			case "Iron Ore":
-			model = new IronOre(50 + 100*i,75,"xy");
-			break;
-			case "Iron Bar":
-			model = new IronBar(50 + 100*i,75,"xy");
-			break;
-		}
+		EntityObject model = makeModel(itemNames[i],50 + 100*i,75);
 
 		model.drawMe();
 	}

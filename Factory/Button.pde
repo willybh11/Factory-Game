@@ -1,6 +1,6 @@
 
 class Button {
-
+		// buttons are only graphical, and arent ACTUALLY interacted with!
 	int x;
 	int y;
 	public String id;
@@ -12,21 +12,7 @@ class Button {
 		y = yCoord;
 		id = t;
 		index = indexOf(id,buildingNames);
-
-		switch(id) {
-			case "Smelter":
-			model = new Smelter(x+75,y+75,"xy");
-			break;
-			case "Drill":
-			model = new Drill(x+75,y+75,"xy","Empty");
-			break;
-			case "Pipe":
-			model = new Pipe(x+75,y+75,"xy",'E');
-			break;
-			case "Empty":
-			model = new Empty(x+75,y+75,"xy");
-			break;
-		}
+		model = makeModel(id,x+75,y+75);
 	}
 
 	boolean inBounds(int testX, int testY) {
@@ -51,14 +37,10 @@ class Button {
 		for (int i = 0; i < costs.length; i++) {
 			if (costs[i] > 0) {
 
-				EntityObject model = new Empty(123456789,987654321,"xy");
-				switch(itemNames[i]) {
-					case "Iron Bar":
-					model = new IronBar(x+25*(materials+1),y+110,"xy");
-					break;
-				}
+				EntityObject costModel = makeModel(itemNames[i],x+25*(materials+1),y+110);
 
-				model.drawMe();
+				costModel.drawMe();
+				
 				fill(0);
 				textSize(20);
 				text(costs[i],x+25*(materials+1),y+140);

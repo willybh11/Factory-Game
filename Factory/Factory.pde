@@ -7,6 +7,8 @@ Button[] buildingButtons = new Button[12];
 
 Dictionary buildings = new Hashtable();
 
+int[] lastPress = new int[2];
+
 int[] 		inventory = {3,10};
 String[] 	itemNames = {"Iron Ore", "Iron Bar"};
 String[] 	buildingNames = {"Smelter","Drill","Pipe","Empty","Empty","Empty","Empty","Empty","Empty","Empty","Empty","Empty"};
@@ -33,15 +35,15 @@ void setup() {
 	noCursor();
 	textAlign(CENTER);
 
-	for (int i = 0; i < 15; i++) {
+	for (int i = 0; i < 15; i++) { // generate empty grid
 		for (int j = 0; j < 15; j++) {
 			grid[i][j] = new Empty(i,j,"rowcol");
 		}
 	}
 
-	for (int row = 0; row < 4; row++) {
+	for (int row = 0; row < 4; row++) { // generate buttons
 		for (int col = 0; col < 3; col++) {
-			buildingButtons[3*row + col] = new Button(25 + 175*col,35 + 175*row,buildingNames[3*row + col]);
+			buildingButtons[3*row + col] = new Button(25 + 175*col, 35 + 175*row, buildingNames[3*row + col]);
 		}
 	}
 
@@ -54,6 +56,8 @@ void setup() {
 
 void draw() {
 	background(220);
+
+	mousePressedUpdate();
 
 	drawGrid();
 	drawBuildMenu();

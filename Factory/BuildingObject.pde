@@ -1,48 +1,4 @@
 
-abstract class EntityObject implements BasicInterface {
-
-	int row;
-	int col;
-	int x;
-	int y;
-	String id;
-	boolean active;
-
-	void initCoords(int a, int b, String coordType) {
-		switch(coordType) {
-			case "xy":
-			x = a;
-			y = b;
-			break;
-			case "rowcol":
-			row = a;
-			col = b;
-			x = col*50 + 25;
-			y = row*50 + 25;
-			break;
-		}
-	}
-}
-
-abstract class Hopper extends EntityObject {
-	
-	boolean full = false;
-	char outputDirection = 'E';
-	ArrayList<String> storage = new ArrayList<String>();
-	int startTime;
-	int timeLimit;
-	int capacity;
-	boolean active;
-
-	char getOutputDirection() {
-		return outputDirection;
-	}
-
-	void rotateMe(char direction) {
-		outputDirection = direction;
-	}
-}
-
 interface BasicInterface {
 
 	void drawMe();
@@ -53,6 +9,57 @@ interface HopperInterface {
 
 	void update();
 	char getOutputDirection();
+}
+
+abstract class EntityObject implements BasicInterface {
+
+	int row;
+	int col;
+	int x;
+	int y;
+	String id;
+	String outputID;
+	char outputDirection;
+	boolean active;
+
+	void initCoords(int a, int b, String coordType) {
+		outputDirection = 'z';
+		outputID = "this is arbitrary";
+		if (coordType == "xy") {
+			x = a;
+			y = b;
+		} else if (coordType == "rowcol") {
+			row = a; 
+			col = b;
+			x = col*50 + 25;
+			y = row*50 + 25;
+		}
+	}
+
+	void update() {}
+	// void drawMe() {}
+	void rotateMe(char direction) {}
+	// char getOutputDirection() {}
+}
+
+abstract class Hopper extends EntityObject {
+	
+	boolean full = false;
+	// char outputDirection = 'E';
+	ArrayList<String> storage = new ArrayList<String>();
+	int startTime;
+	int timeLimit;
+	int capacity;
+	boolean active;
+
+
+	char getOutputDirection() {
+		return outputDirection;
+	}
+
+	void rotateMe(char direction) {
+		outputDirection = direction;
+	}
 }
 
 class IronOrePatch extends EntityObject implements BasicInterface {
@@ -137,7 +144,7 @@ class IronBar extends EntityObject implements BasicInterface {
 	}
 }
 
-class Pipe extends Hopper implements BasicInterface, HopperInterface {
+class Pipe extends Hopper  implements BasicInterface, HopperInterface {
 
 	public Pipe(int a, int b, String coordType, char outDir) {
 
@@ -145,8 +152,26 @@ class Pipe extends Hopper implements BasicInterface, HopperInterface {
 
 		id = "Pipe";
 		timeLimit = 500;
+		outputDirection = 'E';
 		capacity = 1;
 		outputDirection = outDir;
+	}
+
+	char checkForInput() {
+		if (row > 0) {
+			if (grid[row-1][col].outputDirection == 'S')
+				return 'N';
+		} if (row < 15) {
+			if (grid[row+1][col].outputDirection == 'N')
+				return 'S';
+		} if (col > 0) {
+			if (grid[row][col-1].outputDirection == 'E')
+				return 'W';
+		} if (col < 15) {
+			if (grid[row][col+1].outputDirection == 'W')
+				return 'E';
+		}
+		return 'A'; //this will never happen!
 	}
 
 	void drawMe() {
@@ -160,20 +185,21 @@ class Pipe extends Hopper implements BasicInterface, HopperInterface {
 
 		rect(-5,-5,10,10);
 
-		// switch(inputDirection) {
-		// 	case 'N':
-		// 	rect(-5,-25,10,25);
-		// 	break;
-		// 	case 'S':
-		// 	rect(-5,0,10,25);
-		// 	break;
-		// 	case 'W':
-		// 	rect(-25,-5,25,10);
-		// 	break;
-		// 	case 'E':
-		// 	rect(0,-5,25,10);
-		// 	break;
-		// }
+
+		switch(checkForInput()) {
+			case 'N':
+			rect(-5,-25,10,25);
+			break;
+			case 'S':
+			rect(-5,0,10,25);
+			break;
+			case 'W':
+			rect(-25,-5,25,10);
+			break;
+			case 'E':
+			rect(0,-5,25,10);
+			break;
+		}
 
 		switch(outputDirection) {
 			case 'N':
@@ -242,9 +268,9 @@ class Pipe extends Hopper implements BasicInterface, HopperInterface {
 	}
 }
 
-class Drill extends Hopper implements BasicInterface, HopperInterface {
+class Drill extends Hopper  implements BasicInterface, HopperInterface {
 
-	String outputID;
+	// String outputID;
 	float angle;
 
 	public Drill(int a, int b, String coordType, String patchID) {
@@ -255,6 +281,8 @@ class Drill extends Hopper implements BasicInterface, HopperInterface {
 		outputDirection = 'E';
 		timeLimit = 3000;
 		active = true;
+		angle = 90;
+		startTime = millis();
 
 		switch(patchID) {
 			case "Iron Ore Patch":
@@ -275,40 +303,51 @@ class Drill extends Hopper implements BasicInterface, HopperInterface {
 			case "Iron Ore":
 			fill(120,150,170);
 			rect(-25,-25,50,50);
+			if (!full) angle += 5;
 			break;
 		}
 
-		fill(80);
 		noStroke();
+		fill(80);
 
-		if (!full) angle += 5;
+		switch(outputDirection) {
+			case 'W':
+			rect(-25,-4,30,8);
+			fill(0,255,0);
+			rect(-25,-3,6,6);
+			break;
+			case 'E':
+			rect(-5,-4,30,8);
+			fill(0,255,0);
+			rect(19,-3,6,6);
+			break;
+			case 'N':
+			rect(-4,-25,8,30);
+			fill(0,255,0);
+			rect(-3,-25,6,6);
+			break;
+			case 'S':
+			rect(-4,-5,8,30);
+			fill(0,255,0);
+			rect(-3,19,6,6);
+			break;
+		}
+
 
 		rotate(radians(angle));
+		fill(80);
 
 		rectMode(CENTER);
 		rect(0,0,30,4,5);
 		rectMode(CORNER);
 
-		rotate(-radians(angle));
-
-		rect(-5,-4,30,8);
-
-		fill(0,255,0);
-
-		switch(outputDirection) {
-			case 'W':
-			rect(-20,-3,6,6);
-			break;
-			case 'E':
-			rect(20,-3,6,6);
-			break;
-		}
+		// rotate(-radians(angle));
 
 		popMatrix();
 	}
 
 	void update() {
-		if (millis() >= startTime + timeLimit || full) {
+		if (outputID != "Empty" && (millis() >= startTime + timeLimit || full) ) {
 
 			int outputRow = 0;
 			int outputCol = 0;
@@ -332,6 +371,11 @@ class Drill extends Hopper implements BasicInterface, HopperInterface {
 				break;
 			}
 
+			if (outputRow == 15 || outputRow == -1 || outputCol == 15 || outputCol == -1) { // cannots output outside of grid
+				full = true;
+				return;
+			}
+
 			if (grid[outputRow][outputCol].inputItem(outputID)) {
 				active = false;
 				full = false;
@@ -348,7 +392,7 @@ class Drill extends Hopper implements BasicInterface, HopperInterface {
 	}
 }
 
-class Smelter extends Hopper implements BasicInterface, HopperInterface {
+class Smelter extends Hopper  implements BasicInterface, HopperInterface {
 
 	public Smelter(int a, int b, String coordType) {
 
@@ -357,6 +401,7 @@ class Smelter extends Hopper implements BasicInterface, HopperInterface {
 		id = "Smelter";
 		timeLimit = 5000; // 5 sec
 		capacity = 1;
+		outputDirection = 'E';
 	}
 
 	void drawMe() {
